@@ -8,7 +8,7 @@
     "install": "npm install --prefix api && npm install --prefix reactjs",
     "build": "npm run build --prefix reactjs",
     "start": "npm start --prefix api",
-    "dev:react": "npm run dev --prefix reactjs",
+    "dev:react": "npm start --prefix reactjs",
     "dev:api": "npm run dev --prefix api",
     "dev": "npm run dev:api & npm run dev:react"
   }
