@@ -24,9 +24,10 @@ app.use(express.json());
 app.use("/api/v1/bears", bearRouter);
 
 app.use(express.static(path.join(__dirname, "../reactjs/build")));
-app.get("*", (req, res) => {
+app.get(/^\/(?!api\/).*/, (req, res) => {
   res.sendFile(path.join(__dirname, "../reactjs/build", "index.html"));
 });
+
 app.listen(PORT, () => {
   console.log(`server running on ${PORT}`);
 });
