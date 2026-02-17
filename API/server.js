@@ -23,11 +23,9 @@ db.once(`open`, () => console.log("database connection worked"));
 app.use(express.json());
 app.use("/api/v1/bears", bearRouter);
 
-const reactBuildPath = path.join(__dirname, "../reactjs/build");
-app.use(express.static(reactBuildPath));
-
-app.get(/^\/(?!api).*/, (req, res) => {
-  res.sendFile(path.join(reactBuildPath, "index.html"));
+app.use(express.static(path.join(__dirname, "../reactjs/build")));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../reactjs/build", "index.html"));
 });
 app.listen(PORT, () => {
   console.log(`server running on ${PORT}`);
