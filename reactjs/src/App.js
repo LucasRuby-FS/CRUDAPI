@@ -7,36 +7,32 @@ function App() {
   const [error, setError] = useState(null);
   const API_BASE =
     process.env.NODE_ENV === "development"
-      ? `http://localhost:8000`
+      ? `http://localhost:8000/api/v1`
       : process.env.REACT_APP_BASE_URL;
 
   useEffect(() => {
     let ignore = false;
 
-    if (!ignore) {
-      getBears();
-    }
+    const fetchBears = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_BASE}/bears`);
+        if (!res.ok) throw new Error("Failed to fetch bears");
+        const data = await res.json();
+        if (!ignore) setBears(data);
+      } catch (err) {
+        if (!ignore) setError(err.message || "Unexpected Error");
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    };
+
+    fetchBears();
 
     return () => {
       ignore = true;
     };
-  }, []);
-
-  const getBears = async () => {
-    setLoading(true);
-    try {
-      await fetch(`${API_BASE}/bears`)
-        .then((res) => res.json())
-        .then((data) => {
-          console.log(data);
-          setBears(data);
-        });
-    } catch (error) {
-      setError(error.message || "Unexpected Error");
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [API_BASE]);
 
   return (
     <div className="App">
