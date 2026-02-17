@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
-
+import { useParams } from "react-router-dom";
 function Bears() {
   const [bears, setBears] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const { id } = useParams();
+
   const API_BASE =
     process.env.NODE_ENV === "development"
       ? `http://localhost:8000/api/v1`
@@ -15,7 +18,7 @@ function Bears() {
     const fetchBears = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${API_BASE}/bears`);
+        const res = await fetch(`${API_BASE}/bears/${id}`);
         if (!res.ok) throw new Error("Failed to fetch bears");
         const data = await res.json();
         if (!ignore) setBears(data);
@@ -25,7 +28,6 @@ function Bears() {
         if (!ignore) setLoading(false);
       }
     };
-
     fetchBears();
 
     return () => {
