@@ -1,61 +1,109 @@
-//All red lines throughout this page.
-//Routes do not work.
-//React Router errors.
-//I cannot figure out how to connect the reactjs and api.
-//Build has made problems, I think to the routing and trying to use REST on VSCode to stimulate the requests.
-//I am not confident on the package.jsons being made correctly. As well as the server.js and App.js.
-//The localhost:8000 can only be accepted by adding /api/v1/bears example:
-//localhost:8000/api/v1/bears
-//I did have an issue trying to change my folder name from "API" to "api".
-//I am not sure if the files are correct in the api folder.
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 function Dashboard() {
   const [bears, setBears] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [values, setValues] = useState({
+    name: "",
+    gender: "",
+    breed: "",
+  });
   const API_BASE =
     process.env.NODE_ENV === "development"
       ? `http://localhost:8000/api/v1`
       : process.env.REACT_APP_BASE_URL;
 
   useEffect(() => {
-    let ignore = false;
-
-    const fetchBears = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(`${API_BASE}/bears`);
-        if (!res.ok) throw new Error("Failed to fetch bears");
-        const data = await res.json();
-        if (!ignore) setBears(data);
-      } catch (err) {
-        if (!ignore) setError(err.message || "Unexpected Error");
-      } finally {
-        if (!ignore) setLoading(false);
-      }
-    };
-
     fetchBears();
+  }, []);
 
-    return () => {
-      ignore = true;
-    };
-  }, [API_BASE]);
+  const fetchBears = async () => {
+    setLoading(true);
+    try {
+      await fetch(`${API_BASE}/bears`)
+        .then((res) => res.json())
+        .then((data) => {
+          console.log("Fetched Bears:", data, Array.isArray(data));
+          setBears(Array.isArray(data) ? data : []);
+        });
+    } catch (error) {
+      setError(error.message || "Unexpected Error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  const createBear = async () => {
+    try {
+      await fetch(`${API_BASE}/bears`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      }).then(() => fetchBears());
+    } catch (error) {
+      setError(error.message || "Unexpected Error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    createBear();
+  };
+
+  const handleInputChanges = (event) => {
+    event.persist();
+    setValues((values) => ({
+      ...values,
+      [event.target.name]: event.target.value,
+    }));
+  };
   return (
-    <div className="Dashboard">
-      <header className="Dashboard-header">
+    <div className="App">
+      <header className="App-header">
         <h1>Bears:</h1>
         <Link to="/">Home</Link>
         <ul>
-          {bears &&
-            bears.map((bear) => (
-              <li key={bear._id}>
-                <Link to={`/bears/${bear._id}`}>{bear.name}</Link>
-              </li>
-            ))}
+          {bears?.map((bear) => (
+            <li key={bear._id}>
+              <Link to={`/bears/${bear._id}`}>{bear.name}</Link>
+            </li>
+          ))}
         </ul>
+        <form onSubmit={(event) => handleSubmit(event)}>
+          <label>
+            Name:
+            <input
+              type="text"
+              name="name"
+              value={values.name}
+              onChange={handleInputChanges}
+            />
+          </label>
+          <label>
+            Breed:
+            <input
+              type="text"
+              name="breed"
+              value={values.breed}
+              onChange={handleInputChanges}
+            />
+          </label>
+          <label>
+            Gender:
+            <input
+              type="text"
+              name="gender"
+              value={values.gender}
+              onChange={handleInputChanges}
+            />
+          </label>
+          <input type="submit" value="Submit" />
+        </form>
       </header>
     </div>
   );
