@@ -63,7 +63,7 @@ router.patch("/:id", getBear, async (req, res) => {
   }
   try {
     const updatedBear = await res.bear.save();
-    res.jsonp(updatedBear);
+    res.json(updatedBear);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -72,7 +72,7 @@ router.patch("/:id", getBear, async (req, res) => {
 //DELETE
 router.delete("/:id", getBear, async (req, res) => {
   try {
-    await res.bear.deleteOne();
+    await res.bear.remove();
     res.json({ message: "Removed Bear" });
   } catch (error) {
     res.status(500).json({ message: error.message });
