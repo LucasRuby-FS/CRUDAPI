@@ -23,8 +23,8 @@ const getBear = async (req, res, next) => {
 //GET ALL
 router.get("/", async (req, res) => {
   try {
-    const bears = await Bear.find();
-    res.json(bears);
+    const bear = await Bear.find();
+    res.json(bear);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
