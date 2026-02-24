@@ -7,24 +7,24 @@ const Bear = require("../models/bear");
 //GET, POST, PATCH, DELETE
 
 const getBear = async (req, res, next) => {
-  let bear;
+  let bears;
   try {
-    bear = await Bear.findById(req.params.id);
-    if (bear === null) {
+    bears = await Bear.findById(req.params.id);
+    if (bears === null) {
       return res.status(404).json({ message: "Bear not found" });
     }
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
-  res.bear = bear;
+  res.bears = bears;
   next();
 };
 
 //GET ALL
 router.get("/", async (req, res) => {
   try {
-    const bear = await Bear.find();
-    res.json(bear);
+    const bears = await Bear.find();
+    res.json(bears);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -32,18 +32,19 @@ router.get("/", async (req, res) => {
 
 ///GET ONE
 router.get("/:id", getBear, async (req, res) => {
-  res.json(res.bear);
+  res.json(res.bears);
 });
 
 //POST CREATE
 router.post("/", async (req, res) => {
-  const bear = new Bear({
+  console.log("post body recieved:", req.body);
+  const bears = new Bear({
     name: req.body.name,
     breed: req.body.breed,
     gender: req.body.gender,
   });
   try {
-    const newBear = await bear.save();
+    const newBear = await bears.save();
     res.status(201).json(newBear);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -53,16 +54,16 @@ router.post("/", async (req, res) => {
 //PATCH UPDATE
 router.patch("/:id", getBear, async (req, res) => {
   if (req.body.name != null) {
-    res.bear.name = req.body.name;
+    res.bears.name = req.body.name;
   }
   if (req.body.breed != null) {
-    res.bear.breed = req.body.breed;
+    res.bears.breed = req.body.breed;
   }
   if (req.body.gender != null) {
-    res.bear.gender = req.body.gender;
+    res.bears.gender = req.body.gender;
   }
   try {
-    const updatedBear = await res.bear.save();
+    const updatedBear = await res.bears.save();
     res.json(updatedBear);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -72,7 +73,7 @@ router.patch("/:id", getBear, async (req, res) => {
 //DELETE
 router.delete("/:id", getBear, async (req, res) => {
   try {
-    await res.bear.remove();
+    await Bear.deleteOne({ _id: res.bears._id });
     res.json({ message: "Removed Bear" });
   } catch (error) {
     res.status(500).json({ message: error.message });

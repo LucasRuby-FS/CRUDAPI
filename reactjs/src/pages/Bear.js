@@ -16,29 +16,19 @@ function Bears() {
 
   const API_BASE =
     process.env.NODE_ENV === "development"
-      ? `http://localhost:8000/api/v1`
+      ? `http://localhost:8000`
       : process.env.REACT_APP_BASE_URL;
 
   useEffect(() => {
-    let ignore = false;
-    async function load() {
-      const data = await fetchBears();
-      if (!ignore) {
-        fetchBears();
-      }
-    }
-    load();
-    return () => {
-      ignore = true;
-    };
+    fetchBears();
   }, []);
+
   const fetchBears = async () => {
     setLoading(true);
     try {
       await fetch(`${API_BASE}/bears/${id}`)
         .then((res) => res.json())
         .then((data) => {
-          console.log({ data });
           setValues({
             name: data.name,
             breed: data.breed,
@@ -52,9 +42,14 @@ function Bears() {
     }
   };
   const deleteBear = async () => {
+    setLoading(true);
     try {
       await fetch(`${API_BASE}/bears/${id}`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
       })
         .then((res) => res.json())
         .then((data) => {
@@ -104,14 +99,13 @@ function Bears() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Bears list</h1>
-        <h5>{values && values.name}</h5>
-        <p>{values && values.breed}</p>
-        <p>{values && values.gender}</p>
-        <button onClick={() => deleteBear()}>Delete Bear </button>
         <Link to="/">Home</Link>
         <Link to="/dashboard">Dashboard</Link>
-
+        <h4>View and Edit your Bear.</h4>
+        <p>Name: {values && values.name}</p>
+        <p>Breed: {values && values.breed}</p>
+        <p>Gender: {values && values.gender}</p>
+        <button onClick={deleteBear}>Delete Bear </button>
         <form onSubmit={(event) => handleSubmit(event)}>
           <label>
             Name:
@@ -140,7 +134,7 @@ function Bears() {
               onChange={handleInputChanges}
             />
           </label>
-          <input type="submit" value="Submit" />
+          <input type="submit" value="Edit Bear Info" />
         </form>
       </header>
     </div>

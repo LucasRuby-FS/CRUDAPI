@@ -11,7 +11,7 @@ function Dashboard() {
   });
   const API_BASE =
     process.env.NODE_ENV === "development"
-      ? `http://localhost:8000/api/v1`
+      ? `http://localhost:8000`
       : process.env.REACT_APP_BASE_URL;
 
   useEffect(() => {
@@ -21,12 +21,13 @@ function Dashboard() {
   const fetchBears = async () => {
     setLoading(true);
     try {
-      await fetch(`${API_BASE}/bears`)
-        .then((res) => res.json())
-        .then((data) => {
-          console.log("Fetched Bears:", data, Array.isArray(data));
-          setBears(Array.isArray(data) ? data : []);
-        });
+      const res = await fetch(`${API_BASE}/bears`);
+      if (!res.ok) {
+        throw new Error(`HTTP error! state: ${res.status}`);
+      }
+      const data = await res.json();
+      console.log("Fetched bears:", data, Array.isArray(data));
+      setBears(Array.isArray(data) ? data : []);
     } catch (error) {
       setError(error.message || "Unexpected Error");
     } finally {
@@ -35,6 +36,7 @@ function Dashboard() {
   };
 
   const createBear = async () => {
+    setLoading(true);
     try {
       await fetch(`${API_BASE}/bears`, {
         method: "POST",
@@ -42,7 +44,8 @@ function Dashboard() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(values),
-      }).then(() => fetchBears());
+      });
+      await fetchBears();
     } catch (error) {
       setError(error.message || "Unexpected Error");
     } finally {
@@ -65,8 +68,9 @@ function Dashboard() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Bears:</h1>
         <Link to="/">Home</Link>
+        <h1>Bear List:</h1>
+        <p>Click on the Bears name to edit or delete the Bear.</p>
         <ul>
           {bears?.map((bear) => (
             <li key={bear._id}>
@@ -74,6 +78,7 @@ function Dashboard() {
             </li>
           ))}
         </ul>
+        <p>Add Information for a new Bear:</p>
         <form onSubmit={(event) => handleSubmit(event)}>
           <label>
             Name:
@@ -102,7 +107,7 @@ function Dashboard() {
               onChange={handleInputChanges}
             />
           </label>
-          <input type="submit" value="Submit" />
+          <input type="submit" value="Add Bear" />
         </form>
       </header>
     </div>
