@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 8000;
 
 const DATABASE_URL = process.env.DATABASE_URL || "mongodb://localhost:27017/bearsdb";
 
+
 mongoose
   .connect(DATABASE_URL)
   .then(() => console.log("MongoDB connected"))
@@ -20,12 +21,13 @@ const db = mongoose.connection;
 db.on("error", (error) => console.error(error));
 db.once(`open`, () => console.log("database connection worked"));
 
+app.use("/api/v1/bears", bearRouter); // Focus API routes under /api/v1
+
 app.use(express.static(path.join(__dirname, "../reactjs/build")));
 app.get('*path', (req, res) => { // Updated wildcard for new pattern
   res.sendFile(path.join(__dirname, '../reactjs/build', 'index.html'));
 });
 
-app.use("/api/v1/bears", bearRouter); // Focus API routes under /api/v1
 
 
 app.listen(PORT, () => {
