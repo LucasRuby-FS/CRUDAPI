@@ -10,10 +10,10 @@ app.use(express.json());
 app.use("/bears", bearRouter);
 const PORT = process.env.PORT || 8000;
 
-const DATABASE_URL = process.env.DATABASE_URL;
+const DATABASE_URL = process.env.DATABASE_URL || "mongodb://localhost:27017/bearsdb";
 
 mongoose
-  .connect(process.env.DATABASE_URL)
+  .connect(DATABASE_URL)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error(err));
 
