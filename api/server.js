@@ -7,13 +7,13 @@ const app = express();
 const bearRouter = require("./routes/bears");
 app.use(cors());
 app.use(express.json());
-app.use("/bears", bearRouter);
 const PORT = process.env.PORT || 8000;
 
-const DATABASE_URL = process.env.DATABASE_URL;
+const DATABASE_URL = process.env.DATABASE_URL || "mongodb://localhost:27017/bearsdb";
+
 
 mongoose
-  .connect(process.env.DATABASE_URL)
+  .connect(DATABASE_URL)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error(err));
 
@@ -21,10 +21,14 @@ const db = mongoose.connection;
 db.on("error", (error) => console.error(error));
 db.once(`open`, () => console.log("database connection worked"));
 
+app.use("/api/v1/bears", bearRouter); // Focus API routes under /api/v1
+
 app.use(express.static(path.join(__dirname, "../reactjs/build")));
-app.get(/^\/(?!api\/).*/, (req, res) => {
-  res.sendFile(path.join(__dirname, "../reactjs/build", "index.html"));
+app.get('*path', (req, res) => { // Updated wildcard for new pattern
+  res.sendFile(path.join(__dirname, '../reactjs/build', 'index.html'));
 });
+
+
 
 app.listen(PORT, () => {
   console.log(`server running on ${PORT}`);
