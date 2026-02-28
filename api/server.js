@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 const PORT = process.env.PORT || 8000;
 
-const DATABASE_URL = process.env.DATABASE_URL || "mongodb://localhost:27017/bears";
+const DATABASE_URL = process.env.DATABASE_URL;
 
 mongoose
   .connect(DATABASE_URL)
@@ -20,7 +20,7 @@ const db = mongoose.connection;
 db.on("error", (error) => console.error(error));
 db.once(`open`, () => console.log("database connection worked"));
 
-app.use('api/v1/bears', bearRouter);
+app.use('/api/v1/bears', bearRouter);
 
 app.use(express.static(path.join(__dirname, "../reactjs/build")));
 
